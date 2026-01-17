@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @Scheduled方法扫描器 自动扫描所有带@Scheduled注解的方法，注册到数据库
  */
 @Slf4j
-@Component
+//@Component
 public class ScheduledMethodScanner implements SmartLifecycle {
 
     @Autowired

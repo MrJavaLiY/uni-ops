@@ -21,6 +21,9 @@ public class ScheduledConfig {
     @TableField("method_name")
     private String methodName;  // 方法名（如：syncData）
 
+    @TableField("app_name")
+    private String appName;
+
     @TableField("cron_expression")
     private String cronExpression;  // Cron表达式（如：0/30 * * * * ?）
 
@@ -41,6 +44,9 @@ public class ScheduledConfig {
 
     @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private Date updatedAt;  // 更新时间
+
+    @TableField(value="enable")
+    private Boolean enable;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
