@@ -16,8 +16,7 @@ import com.uniops.core.service.IScheduledLogService;
 import java.util.Date;
 
 /**
- * @Scheduled方法执行监控切面
- * 拦截所有带@Scheduled注解的方法，记录执行日志
+ * @Scheduled方法执行监控切面 拦截所有带@Scheduled注解的方法，记录执行日志
  */
 @Slf4j
 @Aspect
@@ -41,7 +40,7 @@ public class ScheduledMonitorAspect {
 
         // 检查是否启用监控
         ScheduledConfig config = configService.getByBeanAndMethod(beanName, methodName);
-        if (config == null || "DISABLED".equals(config.getStatus())) {
+        if (config == null || "ENABLED".equals(config.getMonitorStatus())) {
             // 未启用监控，直接执行
             return joinPoint.proceed();
         }

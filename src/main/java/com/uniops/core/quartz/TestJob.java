@@ -15,4 +15,20 @@ public class TestJob {
     public void execute() {
         System.out.println("TestJob execute...");
     }
+    @Scheduled(cron = "0/5 * * * * ?")
+    public void execute1() {
+        System.out.println("TestJob1 execute...");
+    }
+    @Scheduled(fixedDelay = 5000, initialDelay = 1000)
+    public void execute2() {
+        System.out.println("TestJob2 execute...");
+    }
+    @Scheduled(fixedRate = 5000, initialDelay = 1000)
+    public void execute3() {
+        System.out.println("TestJob3 execute...");
+    }
+    @Scheduled(fixedDelay = 5000)
+    public void execute4() {
+        System.out.println("TestJob4 execute...");
+    }
 }

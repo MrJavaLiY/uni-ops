@@ -76,7 +76,7 @@ public class ScheduledMethodScanner implements SmartLifecycle {
                     config.setBeanName(beanName);
                     config.setMethodName(methodName);
                     config.setCronExpression(cronExpression);
-                    config.setStatus("DISABLED");  // 默认禁用，避免意外执行
+                    config.setEnabled(false);  // 默认禁用，避免意外执行
                     config.setDescription("自动发现的@Scheduled方法");
                     config.setCreatedAt(new Date());
                     config.setUpdatedAt(new Date());

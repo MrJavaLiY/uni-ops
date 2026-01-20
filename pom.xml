@@ -33,6 +33,11 @@
   <!-- ... existing code ... -->
     <dependencies>
         <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.58</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <!-- 排除默认的HikariCP连接池 -->
@@ -67,7 +72,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <scope>runtime</scope>
+            <version>12.6.1.jre11</version> <!-- SQL Server 2019推荐使用12.x版本 -->
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -1,0 +1,46 @@
+package com.uniops.core.interceptor;
+
+import com.alibaba.fastjson2.JSONObject;
+import com.uniops.core.response.ResponseResult;
+import com.uniops.core.util.AuthConstants;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+@Component
+public class SessionInterceptor implements HandlerInterceptor {
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 允许OPTIONS请求通过（用于预检请求）
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        // 排除登录接口和静态资源
+        String requestURI = request.getRequestURI();
+        //去掉公共前缀
+        requestURI = requestURI.substring(requestURI.indexOf("/", 1));
+        if (requestURI.startsWith("/auth") ||
+                requestURI.startsWith("/api-docs") ||
+                requestURI.startsWith("/webjags") ||
+                requestURI.startsWith("/swagger")) {
+            return true;
+        }
+
+        // 检查session中是否有登录标识
+//        HttpSession session = request.getSession(false);
+        String accessToken = request.getHeader("access_token");
+        if (accessToken == null || !accessToken.equals(AuthConstants.USERNAME)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            ResponseResult result = ResponseResult.error(401, "未授权，请先登录");
+            response.getWriter().write(JSONObject.toJSONString(result));
+            return false;
+        }
+
+        return true;
+    }
+}
