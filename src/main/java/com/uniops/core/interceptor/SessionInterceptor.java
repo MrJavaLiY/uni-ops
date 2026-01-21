@@ -26,7 +26,8 @@ public class SessionInterceptor implements HandlerInterceptor {
         if (requestURI.startsWith("/auth") ||
                 requestURI.startsWith("/api-docs") ||
                 requestURI.startsWith("/webjags") ||
-                requestURI.startsWith("/swagger")) {
+                requestURI.startsWith("/swagger") ||
+                requestURI.startsWith("/system")) {
             return true;
         }
 
