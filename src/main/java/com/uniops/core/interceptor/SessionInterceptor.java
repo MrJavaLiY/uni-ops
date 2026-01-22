@@ -27,7 +27,12 @@ public class SessionInterceptor implements HandlerInterceptor {
                 requestURI.startsWith("/api-docs") ||
                 requestURI.startsWith("/webjags") ||
                 requestURI.startsWith("/swagger") ||
-                requestURI.startsWith("/system")) {
+                requestURI.startsWith("/system")||
+                requestURI.startsWith("/index.html") ||
+                requestURI.contains(".html")||
+                requestURI.contains(".css") ||
+                requestURI.contains(".js")) {
+
             return true;
         }
 

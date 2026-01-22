@@ -32,17 +32,17 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemRegisterMapper, 
 
     private String packagePath(SystemRegister systemRegister) {
         StringBuilder sb = new StringBuilder();
-//        sb.append("http://")
-//                .append(systemRegister.getIp())
-//                .append(":")
-//                .append(systemRegister.getPort())
-//                .append("/")
-//                .append(systemRegister.getServletPath());
         sb.append("http://")
                 .append(systemRegister.getIp())
                 .append(":")
-                .append(3000)
-                .append("/system");
+                .append(systemRegister.getPort())
+                .append(systemRegister.getServletPath())
+                .append("/#/system");
+//        sb.append("http://")
+//                .append(systemRegister.getIp())
+//                .append(":")
+//                .append(3000)
+//                .append("/#/system");
         return sb.toString();
     }
 }
