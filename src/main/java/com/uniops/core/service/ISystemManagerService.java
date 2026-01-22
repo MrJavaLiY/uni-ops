@@ -8,4 +8,6 @@ import java.util.List;
 public interface ISystemManagerService {
 
     List<SystemRegister> searchList(SystemRequestCondition condition);
+
+    SystemRegister getSystem(Long id);
 }

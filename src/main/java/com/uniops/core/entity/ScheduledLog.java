@@ -2,21 +2,27 @@ package com.uniops.core.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+
 import java.util.Date;
 
 /**
  * Scheduled任务执行日志实体
  * 记录@Scheduled方法每次执行的详细信息
  */
-@Data@TableName("uniops_scheduled_log")
+@Data
+@TableName("uniops_scheduled_log")
 public class ScheduledLog {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
     @TableField("bean_name")
-    private String beanName;  // Bean名称    @TableField("method_name")
+    private String beanName;  // Bean名称
+    @TableField("method_name")
     private String methodName;  // 方法名
+
+    @TableField("app_name")
+    private String appName;
 
     @TableField("trigger_time")
     private Date triggerTime;  // 执行时间

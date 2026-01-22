@@ -1,5 +1,7 @@
 package com.uniops.core.monitor;
 
+import com.uniops.core.condition.SystemCondition;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -29,6 +31,8 @@ public class ScheduledMonitorAspect {
 
     @Autowired
     private IScheduledConfigService configService;
+    @Resource
+    SystemCondition systemCondition;
 
     /**
      * 环绕通知：拦截@Scheduled方法
@@ -40,7 +44,7 @@ public class ScheduledMonitorAspect {
 
         // 检查是否启用监控
         ScheduledConfig config = configService.getByBeanAndMethod(beanName, methodName);
-        if (config == null || "ENABLED".equals(config.getMonitorStatus())) {
+        if (config == null || !"ENABLED".equals(config.getMonitorStatus())) {
             // 未启用监控，直接执行
             return joinPoint.proceed();
         }
@@ -58,17 +62,12 @@ public class ScheduledMonitorAspect {
         logEntry.setTriggerTime(new Date());
         logEntry.setStatus("RUNNING");
         logEntry.setTriggerType("SCHEDULED");
+        logEntry.setAppName(systemCondition.getApplicationName());
         logService.save(logEntry);
-
         try {
             // 执行原方法
             Object result = joinPoint.proceed();
-
-            // 更新下次执行时间（通过Cron表达式估算）
-            updateNextFireTime(config, scheduled);
-
             return result;
-
         } catch (Throwable e) {
             success = false;
             exceptionMsg = e.getMessage();

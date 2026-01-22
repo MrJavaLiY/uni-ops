@@ -1,5 +1,6 @@
 package com.uniops.core.quartz;
 
+import com.uniops.core.annotation.NoManagedJob;
 import com.uniops.core.entity.ScheduledConfig;
 import com.uniops.core.entity.TaskMetadata;
 import com.uniops.core.service.IScheduledConfigService;
@@ -84,6 +85,7 @@ public class DynamicScheduledTaskManager implements ApplicationContextAware, Ini
             for (Method method : methods) {
                 // 3. 检查是否有@Scheduled注解
                 if (method.isAnnotationPresent(Scheduled.class)) {
+
                     Scheduled scheduled = method.getAnnotation(Scheduled.class);
                     // 4. 保存原始注解信息（用于恢复）
                     String key = generateKey(beanName, method.getName());
@@ -93,8 +95,8 @@ public class DynamicScheduledTaskManager implements ApplicationContextAware, Ini
                     newConfig.setMethodName(method.getName());
                     newConfig.setCronExpression(scheduled.cron());
                     newConfig.setFixedDelay(scheduled.fixedDelay());
-                    newConfig.setFixedRate(scheduled.fixedRate() );
-                    newConfig.setInitialDelay(scheduled.initialDelay() );
+                    newConfig.setFixedRate(scheduled.fixedRate());
+                    newConfig.setInitialDelay(scheduled.initialDelay());
                     newConfig.setAppName(applicationContext.getEnvironment().getProperty("spring.application.name"));
                     newConfig.setEnabled(true);
                     newConfig.setMonitorStatus("ENABLED");

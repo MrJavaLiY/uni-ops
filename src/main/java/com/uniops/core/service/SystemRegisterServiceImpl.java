@@ -56,6 +56,23 @@ public class SystemRegisterServiceImpl extends ServiceImpl<SystemRegisterMapper,
             systemRegister.setServletPath(systemCondition.getServletPath());
             systemRegister.setStatus("4");
             systemRegister.setSecretKey(LicenseManager.buildEncryptionString(systemCondition.getApplicationName()));
+            //注册沿用，也就是说，在同一台机器上的同一个appName，可以享受同一个注册码
+            SystemRegister existSystemRegister = this.getOne(new QueryWrapper<SystemRegister>()
+                    .eq("system_id", systemCondition.getApplicationName())
+                    .eq("ip", systemCondition.getIp()));
+            if (existSystemRegister != null) {
+                //说明本机有同类型的存在，则沿用，否则则创建纯新的
+                String authorizationMes = existSystemRegister.getAuthorizationMes();
+                if (!StringUtils.isEmpty(authorizationMes)) {
+                    LicenseManager.AuthorizationResult authorizationResult = LicenseManager.checkAuthorization(authorizationMes, DateUtils.format(new Date(), "yyyy-MM-dd"));
+                    if (authorizationResult.isValid()) {
+                        //说明有用，则使用
+                        systemRegister.setAuthorizationMes(authorizationMes);
+                        log.info("本机上有同类型项目，沿用注册码");
+                    }
+                }
+            }
+
             this.save(systemRegister);
         }
     }

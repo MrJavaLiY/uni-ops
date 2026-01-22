@@ -306,12 +306,14 @@ public class LicenseManager {
         // 模拟系统信息
         String systemId = "SYSTEM_001";
 
+
+
         // 1. 生成加密串（自动获取MAC地址）
         String encryptionString = LicenseManager.buildEncryptionString(systemId);
         System.out.println("加密串: " + encryptionString);
 
         // 2. 生成授权串（授权日期为2026-12-31）
-        String authorizationString = LicenseManager.buildAuthorizationString(encryptionString, "2026-12-31");
+        String authorizationString = LicenseManager.buildAuthorizationString("SP8TgEEcWrCEJusYMfQXih+PFpoBo37ooAv7y8i7xJs=", "2026-12-31");
         System.out.println("授权串: " + authorizationString);
 
         // 3. 校验授权（当前日期为2026-01-21）

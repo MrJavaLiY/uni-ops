@@ -3,6 +3,7 @@ package com.uniops.core.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.uniops.core.condition.ScheduledRequestCondition;
 import com.uniops.core.response.ResponseResult;
+import com.uniops.core.vo.SchedulerLogVO;
 import com.uniops.core.vo.SchedulerVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,13 +43,13 @@ public class ScheduledMonitorController {
         if (condition.getConfigEntity().getId() == null || condition.getConfigEntity().getId() == 0) {
             return ResponseResult.error("请选择要修改的配置");
         }
-        if (condition.getConfigEntity().getInitialDelay()==null){
+        if (condition.getConfigEntity().getInitialDelay() == null) {
             condition.getConfigEntity().setInitialDelay((long) -1);
         }
-        if (condition.getConfigEntity().getFixedRate()==null){
+        if (condition.getConfigEntity().getFixedRate() == null) {
             condition.getConfigEntity().setFixedRate((long) -1);
         }
-        if (condition.getConfigEntity().getFixedDelay()==null){
+        if (condition.getConfigEntity().getFixedDelay() == null) {
             condition.getConfigEntity().setFixedDelay((long) -1);
         }
 
@@ -138,11 +139,15 @@ public class ScheduledMonitorController {
     }
 
     @Operation(summary = "查询执行日志")
-    @GetMapping("/logs")
-    public ResponseEntity<Map<String, Object>> getLogs(@Parameter(description = "Bean名称") @RequestParam(required = false) String beanName, @Parameter(description = "方法名称") @RequestParam(required = false) String methodName, @Parameter(description = "页码") @RequestParam(defaultValue = "0") int page, @Parameter(description = "每页大小") @RequestParam(defaultValue = "20") int size) {
-
-        var logs = logService.getLogs(beanName, methodName, page, size);
-        return ResponseEntity.ok(Map.of("content", logs.getRecords(), "totalElements", logs.getTotal(), "totalPages", logs.getPages()));
+    @PostMapping("/logs")
+    public ResponseResult<SchedulerLogVO> getLogs(@RequestBody ScheduledRequestCondition condition) {
+        var logs = logService.getLogs(condition);
+        SchedulerLogVO vo = new SchedulerLogVO();
+        vo.setPage((int) logs.getCurrent());
+        vo.setSize((int) logs.getSize());
+        vo.setTotal(logs.getTotal());
+        vo.setRecords(logs.getRecords());
+        return ResponseResult.success(vo);
     }
 
     @Operation(summary = "最近失败任务")

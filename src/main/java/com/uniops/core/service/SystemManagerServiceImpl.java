@@ -2,9 +2,11 @@ package com.uniops.core.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.uniops.core.condition.SystemCondition;
 import com.uniops.core.condition.SystemRequestCondition;
 import com.uniops.core.entity.SystemRegister;
 import com.uniops.core.mapper.SystemRegisterMapper;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ import java.util.List;
 @Slf4j
 public class SystemManagerServiceImpl extends ServiceImpl<SystemRegisterMapper, SystemRegister>
         implements ISystemManagerService {
+    @Resource
+    SystemCondition systemCondition;
+
     @Override
     public List<SystemRegister> searchList(SystemRequestCondition condition) {
         List<SystemRegister> list = this.list(new QueryWrapper<SystemRegister>()
@@ -30,19 +35,29 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemRegisterMapper, 
         return list;
     }
 
+    @Override
+    public SystemRegister getSystem(Long id) {
+        return this.getById(id);
+    }
+
     private String packagePath(SystemRegister systemRegister) {
         StringBuilder sb = new StringBuilder();
-        sb.append("http://")
-                .append(systemRegister.getIp())
-                .append(":")
-                .append(systemRegister.getPort())
-                .append(systemRegister.getServletPath())
-                .append("/#/system");
-//        sb.append("http://")
-//                .append(systemRegister.getIp())
-//                .append(":")
-//                .append(3000)
-//                .append("/#/system");
+        if ("192.168.224.77".equals(systemRegister.getIp())) {
+            //本机，就用前端开发环境
+            sb.append("http://")
+                    .append(systemRegister.getIp())
+                    .append(":")
+                    .append(3000)
+                    .append("/#/system");
+        } else {
+            sb.append("http://")
+                    .append(systemRegister.getIp())
+                    .append(":")
+                    .append(systemRegister.getPort())
+                    .append(systemRegister.getServletPath())
+                    .append("/#/system");
+        }
+
         return sb.toString();
     }
 }
