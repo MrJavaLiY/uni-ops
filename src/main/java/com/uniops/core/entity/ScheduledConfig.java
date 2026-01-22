@@ -1,7 +1,9 @@
 package com.uniops.core.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.uniops.core.annotation.CacheableEntity;
 import lombok.Data;
+import org.springframework.boot.autoconfigure.cache.CacheType;
 
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -12,6 +14,7 @@ import java.util.Date;
  */
 @Data
 @TableName("uniops_scheduled_config")
+@CacheableEntity(value = "scheduled_config", tableName = "uniops_scheduled_config", primaryKey = "id")
 public class ScheduledConfig {
 
     @TableId(type = IdType.AUTO)

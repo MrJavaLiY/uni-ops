@@ -30,6 +30,7 @@ public class SessionInterceptor implements HandlerInterceptor {
                 requestURI.startsWith("/system")||
                 requestURI.startsWith("/index.html") ||
                 requestURI.contains(".html")||
+                requestURI.contains(".htm")||
                 requestURI.contains(".css") ||
                 requestURI.contains(".js")) {
 
