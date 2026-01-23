@@ -5,6 +5,8 @@ import com.uniops.core.entity.HttpRequestLog;
 import com.uniops.core.service.HttpRequestLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniops.core.service.ISystemRegisterService;
+import com.uniops.core.util.HttpCallLoggerUtil;
+import com.uniops.core.util.OkHttpUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -28,7 +30,8 @@ public class HttpRequestLogAspect {
     private ObjectMapper objectMapper;
     @Resource
     ISystemRegisterService systemRegisterService;
-
+@Resource
+HttpCallLoggerUtil httpCallLoggerUtil;
     @Around("execution(* com..controller..*(..)) && " +
             "!execution(* com.uniops.core.controller.HttpRequestLogController.*(..))")
     public Object logHttpRequest(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -87,6 +90,13 @@ public class HttpRequestLogAspect {
                 // 避免日志记录失败影响主要业务逻辑
                 e.printStackTrace();
             }
+            //写一个调用第三方的测试例子
+
+            httpCallLoggerUtil.easyLogHttpCallByPost("测试",
+                    "http://localhost:8080/uni-ops",
+                    null,
+                    "测试测试测试","返回返回返回","", 100L);
+
         }
     }
 
