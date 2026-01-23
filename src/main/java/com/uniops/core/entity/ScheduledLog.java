@@ -1,6 +1,7 @@
 package com.uniops.core.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.uniops.core.annotation.CacheableEntity;
 import lombok.Data;
 
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Date;
  */
 @Data
 @TableName("uniops_scheduled_log")
+@CacheableEntity(value = "uniops_scheduled_log", tableName = "uniops_scheduled_log", primaryKey = "id")
 public class ScheduledLog {
 
     @TableId(type = IdType.AUTO)

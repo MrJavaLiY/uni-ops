@@ -12,4 +12,6 @@ import lombok.Data;
 public class UniEntity {
     private String columnName;
     private String columnType;
+    private Boolean primaryKey;
+    private String primaryType;
 }

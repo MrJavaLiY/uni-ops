@@ -14,6 +14,7 @@ import java.util.List;
 public class ViewListEntity<T> {
     private int page;
     private int size;
+    private int totalPages;
     private long total;
     private List<T> records;
 }
