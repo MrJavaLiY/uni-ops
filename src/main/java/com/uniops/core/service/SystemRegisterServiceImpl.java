@@ -82,10 +82,12 @@ public class SystemRegisterServiceImpl extends ServiceImpl<SystemRegisterMapper,
         if (LicenseCache.containsKey(getKey())) {
             return (SystemRegister) LicenseCache.get(getKey());
         } else {
-            return this.getOne(new QueryWrapper<SystemRegister>()
+            SystemRegister systemRegister = this.getOne(new QueryWrapper<SystemRegister>()
                     .eq("system_id", systemCondition.getApplicationName())
                     .eq("ip", systemCondition.getIp())
                     .eq("port", systemCondition.getPort()));
+            LicenseCache.put(getKey(), systemRegister);
+            return systemRegister;
         }
     }
 
