@@ -5,7 +5,6 @@ import com.uniops.core.response.ResponseResult;
 import com.uniops.core.util.AuthConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -22,10 +21,12 @@ public class SessionInterceptor implements HandlerInterceptor {
         // 排除登录接口和静态资源
         String requestURI = request.getRequestURI();
         //去掉公共前缀
-        requestURI = requestURI.substring(requestURI.indexOf("/", 1));
+        if (requestURI.startsWith("/uni-ops")) {
+            requestURI = requestURI.substring("/uni-ops".length());
+        }
         if (requestURI.startsWith("/auth") ||
                 requestURI.startsWith("/api-docs") ||
-                requestURI.startsWith("/webjags") ||
+                requestURI.startsWith("/webjars") ||
                 requestURI.startsWith("/swagger") ||
                 requestURI.startsWith("/system") ||
                 requestURI.startsWith("/index.html") ||
@@ -37,17 +38,15 @@ public class SessionInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 检查session中是否有登录标识
-//        HttpSession session = request.getSession(false);
-        String accessToken = request.getHeader("access_token");
-        if (accessToken == null || !AuthConstants.isUserActive(accessToken)) {
+        // 检查session令牌
+        String sessionToken = request.getHeader("session_token"); // 使用新的会话令牌头
+        if (sessionToken == null || !AuthConstants.validateSessionWithCache(sessionToken)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             ResponseResult result = ResponseResult.error(401, "未授权，请先登录");
             response.getWriter().write(JSONObject.toJSONString(result));
             return false;
         }
-        AuthConstants.updateUserActivity(accessToken);
 
         return true;
     }

@@ -1,88 +1,57 @@
+// src/main/java/com/uniops/core/controller/LoginController.java
 package com.uniops.core.controller;
 
+import com.uniops.core.condition.AuthCondition;
 import com.uniops.core.response.ResponseResult;
 import com.uniops.core.util.AuthConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * LoginController 类的简要描述
- *
- * @author liyang
- * @since 2026/1/20
- */
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "用户认证", description = "用户登录登出相关接口")
+@Tag(name = "认证管理", description = "用户认证和会话管理")
 public class LoginController {
 
     @PostMapping("/login")
-    @Operation(summary = "用户登录")
-    public ResponseResult<Map<String, Object>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
+    @Operation(summary = "用户登录", description = "用户登录并获取会话令牌")
+    public ResponseResult<Map<String, Object>> login(@RequestBody AuthCondition credentials,
+                                                     HttpServletRequest request) {
+        String username = credentials.getUsername();
+        String password = credentials.getPassword();
 
-        // 验证用户名和密码
-        if (AuthConstants.validateCredentials(loginRequest.getUsername(), loginRequest.getPassword())) {
-            // 创建session并保存用户信息
-            HttpSession session = request.getSession();
-            session.setAttribute("user", loginRequest.getUsername());
+        String sessionToken = AuthConstants.authenticateAndCreateSession(
+                username, password,
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent"));
 
-            response.put("success", true);
-            response.put("message", "登录成功");
-            response.put("username", loginRequest.getUsername());
-
-            return ResponseResult.success(response);
+        if (sessionToken != null) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("sessionToken", sessionToken);
+            result.put("username", username);
+            return ResponseResult.success(result);
         } else {
-            response.put("success", false);
-            response.put("message", "用户名或密码错误");
-            return ResponseResult.error(500, "用户名或密码错误", response);
+            return ResponseResult.error("用户名或密码错误");
         }
+    }
+
+    @PostMapping("/validate-session")
+    @Operation(summary = "验证会话", description = "验证会话令牌是否有效")
+    public ResponseResult<Boolean> validateSession(@RequestBody AuthCondition request) {
+        String sessionToken = request.getSessionToken();
+        boolean isValid = AuthConstants.validateSessionWithCache(sessionToken);
+        return ResponseResult.success(isValid);
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "用户登出")
-    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
-
-        // 销毁session
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-        AuthConstants.clearUserActivity(request.getHeader("access_token"));
-
-        response.put("success", true);
-        response.put("message", "登出成功");
-
-        return ResponseEntity.ok(response);
-    }
-
-    // 登录请求对象
-    public static class LoginRequest {
-        private String username;
-        private String password;
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
+    @Operation(summary = "用户注销", description = "注销当前会话")
+    public ResponseResult<String> logout(@RequestBody AuthCondition request) {
+        String sessionToken = request.getSessionToken();
+        AuthConstants.logoutSession(sessionToken);
+        return ResponseResult.success("注销成功");
     }
 }

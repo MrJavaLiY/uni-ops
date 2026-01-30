@@ -86,5 +86,5 @@ public class SystemRegister {
     @TableField(exist = false)
     private String managerPath;
     @TableField(exist = false)
-    private String admin = AuthConstants.USERNAME;
+    private String admin = AuthConstants.DEFAULT_USERNAME;
 }
