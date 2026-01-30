@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.uniops.core.annotation.CacheableEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("uniops_third_party_http_log")
+@CacheableEntity(value = "uniops_third_party_http_log", tableName = "uniops_third_party_http_log", primaryKey = "id")
 public class ThirdPartyHttpLog {
 
     @TableId(type = IdType.AUTO)

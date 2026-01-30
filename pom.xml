@@ -29,8 +29,6 @@
     <properties>
         <java.version>21</java.version>
     </properties>
-<!-- ... existing code ... -->
-  <!-- ... existing code ... -->
     <dependencies>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -123,7 +121,6 @@
         </dependency>
     </dependencies>
 
-<!-- ... existing code ... -->
 
 
     <build>
