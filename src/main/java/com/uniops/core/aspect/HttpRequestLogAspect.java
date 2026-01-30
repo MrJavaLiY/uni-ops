@@ -6,12 +6,15 @@ import com.uniops.core.service.HttpRequestLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniops.core.service.ISystemRegisterService;
 import com.uniops.core.util.HttpCallLoggerUtil;
+import com.uniops.core.util.MDCUtil;
 import com.uniops.core.util.OkHttpUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 
 @Aspect
 @Component
+@Slf4j
 public class HttpRequestLogAspect {
 
     @Autowired
@@ -30,74 +34,107 @@ public class HttpRequestLogAspect {
     private ObjectMapper objectMapper;
     @Resource
     ISystemRegisterService systemRegisterService;
-@Resource
-HttpCallLoggerUtil httpCallLoggerUtil;
+    @Resource
+    HttpCallLoggerUtil httpCallLoggerUtil;
+
     @Around("execution(* com..controller..*(..)) && " +
             "!execution(* com.uniops.core.controller.HttpRequestLogController.*(..))")
     public Object logHttpRequest(ProceedingJoinPoint joinPoint) throws Throwable {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-
-        HttpRequestLog logEntry = new HttpRequestLog();
-        logEntry.setApiPath(request.getRequestURI());
-        logEntry.setHttpMethod(request.getMethod());
-        logEntry.setUserAgent(request.getHeader("User-Agent"));
-        logEntry.setClientIp(getClientIpAddress(request));
-        logEntry.setRequestTime(LocalDateTime.now());
-        logEntry.setAppId(systemRegisterService.localSystem().getId());
-
-        // 记录请求参数
         try {
-            logEntry.setRequestParams(objectMapper.writeValueAsString(getRequestParameters(joinPoint)));
-        } catch (Exception e) {
-            logEntry.setRequestParams("无法序列化参数");
-        }
-
-        long startTime = System.currentTimeMillis();
-        Object result = null;
-        String exceptionStack = null;
-
-        try {
-            result = joinPoint.proceed();
-            return result;
-        } catch (Exception e) {
-            exceptionStack = getStackTraceAsString(e);
-            throw e;
-        } finally {
-            long endTime = System.currentTimeMillis();
-            logEntry.setDuration(endTime - startTime);
-            logEntry.setResponseTime(LocalDateTime.now());
-
-            if (result != null) {
-                try {
-                    logEntry.setResponseMessage(objectMapper.writeValueAsString(result));
-                } catch (Exception e) {
-                    logEntry.setResponseMessage("无法序列化响应");
-                }
+            String traceId = MDCUtil.generateTraceId();
+            MDC.put(MDCUtil.TRACE_ID, traceId);
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = null;
+            if (attributes != null) {
+                request = attributes.getRequest();
             }
-
-            if (exceptionStack != null) {
-                logEntry.setExceptionStack(exceptionStack);
+            HttpRequestLog logEntry = new HttpRequestLog();
+            if (request != null) {
+                logEntry.setApiPath(request.getRequestURI());
             }
-
-            // 获取响应状态码（如果有ResponseEntity等）
-            logEntry.setStatusCode(200); // 默认成功状态
-
-            // 保存日志
+            if (request != null) {
+                logEntry.setHttpMethod(request.getMethod());
+            }
+            if (request != null) {
+                logEntry.setUserAgent(request.getHeader("User-Agent"));
+            }
+            if (request != null) {
+                logEntry.setClientIp(getClientIpAddress(request));
+            }
+            logEntry.setRequestTime(LocalDateTime.now());
+            logEntry.setAppId(systemRegisterService.localSystem().getId());
+            logEntry.setLogTraceId(traceId);
+            // 记录请求参数
             try {
-                httpRequestLogService.save(logEntry);
+                logEntry.setRequestParams(objectMapper.writeValueAsString(getRequestParameters(joinPoint)));
             } catch (Exception e) {
-                // 避免日志记录失败影响主要业务逻辑
-                e.printStackTrace();
+                logEntry.setRequestParams("无法序列化参数");
             }
-            //写一个调用第三方的测试例子
+            long startTime = System.currentTimeMillis();
+            Object result = null;
+            String exceptionStack = null;
 
-            httpCallLoggerUtil.easyLogHttpCallByPost("测试",
-                    "http://localhost:8080/uni-ops",
-                    null,
-                    "测试测试测试","返回返回返回","", 100L);
+            try {
+                log.info("""
+                        ===========================
+                        接收到请求：
+                        请求路径:{}
+                        入参:{}
+                        链路id:{}
+                        ===========================""", logEntry.getApiPath(), logEntry.getRequestParams(), traceId);
+                result = joinPoint.proceed();
+                return result;
+            } catch (Exception e) {
+                exceptionStack = getStackTraceAsString(e);
+                throw e;
+            } finally {
+                long endTime = System.currentTimeMillis();
+                logEntry.setDuration(endTime - startTime);
+                logEntry.setResponseTime(LocalDateTime.now());
 
+                if (result != null) {
+                    try {
+                        logEntry.setResponseMessage(objectMapper.writeValueAsString(result));
+                    } catch (Exception e) {
+                        logEntry.setResponseMessage("无法序列化响应");
+                    }
+                }
+
+                if (exceptionStack != null) {
+                    logEntry.setExceptionStack(exceptionStack);
+                }
+
+                // 获取响应状态码（如果有ResponseEntity等）
+                logEntry.setStatusCode(200); // 默认成功状态
+
+                // 保存日志
+                try {
+                    httpRequestLogService.save(logEntry);
+                } catch (Exception e) {
+                    // 避免日志记录失败影响主要业务逻辑
+                    e.printStackTrace();
+                }
+                log.info("""
+                        ===========================
+                        请求处理完毕：
+                        请求路径:{}
+                        返参:{}
+                        链路id:{}
+                        ===========================""", logEntry.getApiPath(), logEntry.getResponseMessage(), traceId);
+
+
+                //TODO
+                //写一个调用第三方的测试例子
+                httpCallLoggerUtil.easyLogHttpCallByPost("测试",
+                        "http://localhost:8080/uni-ops",
+                        null,
+                        "测试测试测试", "返回返回返回", "", 100L);
+
+            }
+        } finally {
+            MDC.remove(MDCUtil.TRACE_ID);
         }
+
     }
 
     private Object getRequestParameters(ProceedingJoinPoint joinPoint) {

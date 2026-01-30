@@ -12,7 +12,9 @@ import com.uniops.core.entity.ThirdPartyHttpLog;
 import com.uniops.core.mapper.ThirdPartyHttpLogMapper;
 import com.uniops.core.service.ISystemRegisterService;
 import com.uniops.core.service.ThirdPartyHttpLogService;
+import com.uniops.core.util.MDCUtil;
 import jakarta.annotation.Resource;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,7 @@ public class ThirdPartyHttpLogServiceImpl extends ServiceImpl<ThirdPartyHttpLogM
         thirdLog.setCreatedAt(LocalDateTime.now());
         thirdLog.setUpdatedAt(LocalDateTime.now());
         thirdLog.setAppId(systemRegisterService.localSystem().getId());
+        thirdLog.setLogTraceId(MDC.get(MDCUtil.TRACE_ID));
         return save(thirdLog);
     }
 

@@ -50,4 +50,6 @@ public class HttpRequestLog {
 
     @TableField("status_code")
     private Integer statusCode;       // 响应状态码
+    @TableField("log_trace_id")
+    private String logTraceId;       // 日志追踪ID
 }

@@ -62,4 +62,6 @@ public class ThirdPartyHttpLog {
 
     @TableField("updated_at")
     private LocalDateTime updatedAt;             // 更新时间
+    @TableField("log_trace_id")
+    private String logTraceId;                  // 日志追踪ID
 }

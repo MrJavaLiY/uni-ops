@@ -40,6 +40,8 @@ public class ScheduledLog {
 
     @TableField("trigger_type")
     private String triggerType;  // SCHEDULED/MANUAL
+    @TableField("log_trace_id")
+    private String logTraceId;  // 日志链路追踪Id
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
