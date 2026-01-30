@@ -27,10 +27,10 @@ public class SessionInterceptor implements HandlerInterceptor {
                 requestURI.startsWith("/api-docs") ||
                 requestURI.startsWith("/webjags") ||
                 requestURI.startsWith("/swagger") ||
-                requestURI.startsWith("/system")||
+                requestURI.startsWith("/system") ||
                 requestURI.startsWith("/index.html") ||
-                requestURI.contains(".html")||
-                requestURI.contains(".htm")||
+                requestURI.contains(".html") ||
+                requestURI.contains(".htm") ||
                 requestURI.contains(".css") ||
                 requestURI.contains(".js")) {
 
@@ -40,13 +40,14 @@ public class SessionInterceptor implements HandlerInterceptor {
         // 检查session中是否有登录标识
 //        HttpSession session = request.getSession(false);
         String accessToken = request.getHeader("access_token");
-        if (accessToken == null || !accessToken.equals(AuthConstants.USERNAME)) {
+        if (accessToken == null || !AuthConstants.isUserActive(accessToken)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             ResponseResult result = ResponseResult.error(401, "未授权，请先登录");
             response.getWriter().write(JSONObject.toJSONString(result));
             return false;
         }
+        AuthConstants.updateUserActivity(accessToken);
 
         return true;
     }

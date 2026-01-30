@@ -29,9 +29,7 @@ public class LoginController {
         Map<String, Object> response = new HashMap<>();
 
         // 验证用户名和密码
-        if (AuthConstants.USERNAME.equals(loginRequest.getUsername()) &&
-            AuthConstants.PASSWORD.equals(loginRequest.getPassword())) {
-
+        if (AuthConstants.validateCredentials(loginRequest.getUsername(), loginRequest.getPassword())) {
             // 创建session并保存用户信息
             HttpSession session = request.getSession();
             session.setAttribute("user", loginRequest.getUsername());
@@ -44,7 +42,7 @@ public class LoginController {
         } else {
             response.put("success", false);
             response.put("message", "用户名或密码错误");
-            return ResponseResult.error(500,"用户名或密码错误",response);
+            return ResponseResult.error(500, "用户名或密码错误", response);
         }
     }
 
@@ -58,6 +56,7 @@ public class LoginController {
         if (session != null) {
             session.invalidate();
         }
+        AuthConstants.clearUserActivity(request.getHeader("access_token"));
 
         response.put("success", true);
         response.put("message", "登出成功");
