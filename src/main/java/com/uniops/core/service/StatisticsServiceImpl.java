@@ -2,13 +2,12 @@
 package com.uniops.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.uniops.core.annotation.CacheableEntity;
+import com.uniops.core.annotation.ManageEntity;
 import com.uniops.core.cache.EntityCacheManager;
 import com.uniops.core.entity.*;
 import com.uniops.core.mapper.*;
 import com.uniops.core.service.IStatisticsService;
 import com.uniops.core.service.ISystemRegisterService;
-import com.uniops.core.service.ISystemManagerService;
 import com.uniops.core.vo.StatisticsVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -160,13 +157,13 @@ public class StatisticsServiceImpl implements IStatisticsService {
             Class<?> entityClass = entry.getKey();
             Object mapper = entry.getValue();
 
-            if (entityClass.isAnnotationPresent(CacheableEntity.class)) {
-                CacheableEntity cacheableEntity = entityClass.getAnnotation(CacheableEntity.class);
-                String entityName = cacheableEntity.value().isEmpty() ?
-                    entityClass.getSimpleName() : cacheableEntity.value();
+            if (entityClass.isAnnotationPresent(ManageEntity.class)) {
+                ManageEntity manageEntity = entityClass.getAnnotation(ManageEntity.class);
+                String entityName = manageEntity.value().isEmpty() ?
+                    entityClass.getSimpleName() : manageEntity.value();
 
-                String tableName = cacheableEntity.tableName().isEmpty() ?
-                    getDefaultTableName(entityClass) : cacheableEntity.tableName();
+                String tableName = manageEntity.tableName().isEmpty() ?
+                    getDefaultTableName(entityClass) : manageEntity.tableName();
 
                 // 通过反射获取Mapper的selectCount方法
                 long count = getEntityCountFromMapper(mapper);

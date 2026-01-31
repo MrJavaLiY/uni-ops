@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.uniops.core.annotation.CacheableEntity;
+import com.uniops.core.annotation.ManageEntity;
 import com.uniops.core.util.AuthConstants;
 import lombok.Data;
 
@@ -18,7 +18,7 @@ import java.util.Date;
  */
 @Data
 @TableName("uniops_system_register")
-@CacheableEntity(value = "uniops_system_register", tableName = "uniops_system_register", primaryKey = "id")
+@ManageEntity(value = "uniops_system_register", tableName = "uniops_system_register", primaryKey = "id")
 public class SystemRegister {
     /**
      * 主键

@@ -1,6 +1,6 @@
 package com.uniops.core.cache;
 
-import com.uniops.core.annotation.CacheableEntity;
+import com.uniops.core.annotation.ManageEntity;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -15,7 +15,6 @@ import org.springframework.util.ClassUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -71,8 +70,8 @@ public class EntityCacheManager implements ApplicationContextAware {
                 Class<?> clazz = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
 
                 // 检查是否有@CacheableEntity注解
-                if (clazz.isAnnotationPresent(CacheableEntity.class)) {
-                    CacheableEntity annotation = clazz.getAnnotation(CacheableEntity.class);
+                if (clazz.isAnnotationPresent(ManageEntity.class)) {
+                    ManageEntity annotation = clazz.getAnnotation(ManageEntity.class);
                     String entityName = annotation.value();
                     if (entityName.isEmpty()) {
                         entityName = clazz.getSimpleName();

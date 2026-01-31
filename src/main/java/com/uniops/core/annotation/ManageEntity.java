@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface CacheableEntity {
+public @interface ManageEntity {
     /**
      * 实体类名称，用于缓存标识
      */

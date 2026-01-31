@@ -5,14 +5,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.uniops.core.annotation.CacheableEntity;
+import com.uniops.core.annotation.ManageEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("uniops_http_request_log")
-@CacheableEntity(value = "uniops_http_request_log", tableName = "uniops_http_request_log", primaryKey = "id")
+@ManageEntity(value = "uniops_http_request_log", tableName = "uniops_http_request_log", primaryKey = "id")
 public class HttpRequestLog {
 
     @TableId(type = IdType.AUTO)
