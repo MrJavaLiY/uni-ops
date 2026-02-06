@@ -1,76 +1,24 @@
 package com.uniops.starter.autoconfigure;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @ConfigurationProperties(prefix = "uniops")
+@Data
+@Component
 public class UniOpsProperties {
 
     private boolean enabled = true;
     private String contextPath = "/uni-ops";
-    private Database database = new Database();
-
-    // getters and setters
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
-
-    public Database getDatabase() {
-        return database;
-    }
-
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
-
-    public static class Database {
-        private String url;
-        private String username;
-        private String password;
-        private String driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-
-        // getters and setters
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getDriverClassName() {
-            return driverClassName;
-        }
-
-        public void setDriverClassName(String driverClassName) {
-            this.driverClassName = driverClassName;
-        }
-    }
+    /**
+     * 自定义页面的跳转地址，需要从http开始的完整可跳转地址
+     */
+    private String otherWebPath;
+    /**
+     * 需要认证的路径前缀,需要登录才能访问的接口的前缀,一般来说不包含content-path
+     */
+    private List<String> includeAuthPathPrefixes;
 }

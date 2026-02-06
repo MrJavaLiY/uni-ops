@@ -6,6 +6,7 @@ import com.uniops.core.condition.SystemCondition;
 import com.uniops.core.condition.SystemRequestCondition;
 import com.uniops.core.entity.SystemRegister;
 import com.uniops.core.mapper.SystemRegisterMapper;
+import com.uniops.starter.autoconfigure.UniOpsProperties;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,8 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemRegisterMapper, 
         implements ISystemManagerService {
     @Resource
     SystemCondition systemCondition;
+    @Resource
+    UniOpsProperties uniOpsProperties;
 
     @Override
     public List<SystemRegister> searchList(SystemRequestCondition condition) {
@@ -42,6 +45,9 @@ public class SystemManagerServiceImpl extends ServiceImpl<SystemRegisterMapper, 
 
     private String packagePath(SystemRegister systemRegister) {
         StringBuilder sb = new StringBuilder();
+        if (!StringUtils.isEmpty(systemRegister.getOtherWebPath())) {
+            return systemRegister.getOtherWebPath()+"/#/system";
+        }
         if ("192.168.224.77".equals(systemRegister.getIp())) {
             //本机，就用前端开发环境
             sb.append("http://")

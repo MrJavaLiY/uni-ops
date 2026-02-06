@@ -313,7 +313,7 @@ public class LicenseManager {
         System.out.println("加密串: " + encryptionString);
 
         // 2. 生成授权串（授权日期为2026-12-31）
-        String authorizationString = LicenseManager.buildAuthorizationString("hx5/jb1LfBvgTc3DfRWDIlpWoQHGPXtr4noUoxebXSw=", "2026-12-31");
+        String authorizationString = LicenseManager.buildAuthorizationString("5TJ6psTRAqaroYWMHKyGqgYSrdROpIDLNcWmkk61lcw=", "2026-02-15");
         System.out.println("授权串: " + authorizationString);
 
         // 3. 校验授权（当前日期为2026-01-21）

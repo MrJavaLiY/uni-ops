@@ -81,6 +81,11 @@ public class SystemRegister {
      */
     @TableField("status")
     private String status;
+    /**
+     * 完整的自定义网页跳转地址,不配置就跳转系统默认页面
+     */
+    @TableField("other_web_path")
+    private String otherWebPath;
 
 
     @TableField(exist = false)
