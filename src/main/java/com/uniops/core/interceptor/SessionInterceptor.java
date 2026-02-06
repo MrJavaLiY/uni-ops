@@ -3,6 +3,7 @@ package com.uniops.core.interceptor;
 import com.alibaba.fastjson2.JSONObject;
 import com.uniops.core.annotation.RequiresAuth;
 import com.uniops.core.response.ResponseResult;
+import com.uniops.core.service.ISystemRegisterService;
 import com.uniops.core.util.AuthConstants;
 import com.uniops.starter.autoconfigure.UniOpsProperties;
 import jakarta.annotation.Resource;
@@ -23,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SessionInterceptor implements HandlerInterceptor {
     @Resource
     UniOpsProperties uniOpsProperties;
-
+    @Resource
+    ISystemRegisterService systemRegisterService;
     // 缓存需要权限校验的API路径
     private static final Set<String> authRequiredPaths = ConcurrentHashMap.newKeySet();
 
@@ -33,8 +35,36 @@ public class SessionInterceptor implements HandlerInterceptor {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
-
         String requestURI = request.getRequestURI();
+        //去掉公共前缀
+        if (requestURI.startsWith("/uni-ops")) {
+            requestURI = requestURI.substring("/uni-ops".length());
+        }
+        if (requestURI.startsWith("/auth") ||
+                requestURI.startsWith("/api-docs") ||
+                requestURI.startsWith("/webjars") ||
+                requestURI.startsWith("/swagger") ||
+                requestURI.startsWith("/system") ||
+                requestURI.startsWith("/index.html") ||
+                requestURI.contains(".html") ||
+                requestURI.contains(".htm") ||
+                requestURI.contains(".css") ||
+                requestURI.contains(".js")) {
+            return true;
+        }
+
+        //-----------------以上是不需要进行控制的，下面的那些，必须要进行授权验证，授权验证完成才允许使用接口
+        boolean isLocalValid = systemRegisterService.checkLocalValidity();
+        if (!isLocalValid) {
+            //系统授权过期
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json;charset=UTF-8");
+            ResponseResult<?> result = ResponseResult.error(505, "系统已经过期了，无法继续使用，请联系公司授权");
+            response.getWriter().write(JSONObject.toJSONString(result));
+            return false;
+        }
+
+
         boolean isAuth = false;
 
         // 检查是否是HandlerMethod类型（控制器方法）
@@ -58,22 +88,6 @@ public class SessionInterceptor implements HandlerInterceptor {
 
         // 排除登录接口和静态资源
 
-        //去掉公共前缀
-        if (requestURI.startsWith("/uni-ops")) {
-            requestURI = requestURI.substring("/uni-ops".length());
-        }
-        if (requestURI.startsWith("/auth") ||
-                requestURI.startsWith("/api-docs") ||
-                requestURI.startsWith("/webjars") ||
-                requestURI.startsWith("/swagger") ||
-                requestURI.startsWith("/system") ||
-                requestURI.startsWith("/index.html") ||
-                requestURI.contains(".html") ||
-                requestURI.contains(".htm") ||
-                requestURI.contains(".css") ||
-                requestURI.contains(".js")) {
-            return true;
-        }
 
         if (isAuth || shouldIncludePath(requestURI)) {
             // 检查session令牌
