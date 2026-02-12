@@ -2,6 +2,7 @@ package com.uniops.core.interceptor;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.uniops.core.annotation.RequiresAuth;
+import com.uniops.core.condition.SystemCondition;
 import com.uniops.core.response.ResponseResult;
 import com.uniops.core.service.ISystemRegisterService;
 import com.uniops.core.util.AuthConstants;
@@ -11,11 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +25,9 @@ public class SessionInterceptor implements HandlerInterceptor {
     UniOpsProperties uniOpsProperties;
     @Resource
     ISystemRegisterService systemRegisterService;
+    @Resource
+    SystemCondition systemCondition;
+
     // 缓存需要权限校验的API路径
     private static final Set<String> authRequiredPaths = ConcurrentHashMap.newKeySet();
 
@@ -37,8 +39,8 @@ public class SessionInterceptor implements HandlerInterceptor {
         }
         String requestURI = request.getRequestURI();
         //去掉公共前缀
-        if (requestURI.startsWith("/uni-ops")) {
-            requestURI = requestURI.substring("/uni-ops".length());
+        if (requestURI.startsWith(systemCondition.getServletPath())) {
+            requestURI = requestURI.substring(systemCondition.getServletPath().length());
         }
         if (requestURI.startsWith("/auth") ||
                 requestURI.startsWith("/api-docs") ||
@@ -105,8 +107,9 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     /**
      * 检查方法或类上是否有RequiresAuth注解
+     *
      * @param handlerMethod 处理方法
-     * @param requestURI 请求URI
+     * @param requestURI    请求URI
      * @return 是否需要认证
      */
     private boolean checkRequiresAuthAnnotation(HandlerMethod handlerMethod, String requestURI) {
@@ -131,6 +134,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     /**
      * 从RequestMapping等注解提取路径并缓存
+     *
      * @param handlerMethod 处理方法
      */
     private void extractAndCachePaths(HandlerMethod handlerMethod) {
@@ -171,8 +175,9 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     /**
      * 组合路径
+     *
      * @param parentPath 父路径
-     * @param childPath 子路径
+     * @param childPath  子路径
      * @return 组合后的路径
      */
     private String combinePaths(String parentPath, String childPath) {
